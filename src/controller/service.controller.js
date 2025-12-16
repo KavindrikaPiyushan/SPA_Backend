@@ -30,5 +30,20 @@ const getServiceById = (req, res) => {
     });
 }
 
+const updateService = (req,res)=>{
+    const {sid}= req.params;
+    db.query('UPDATE Service SET ? WHERE sid=?',[req.body,sid],(err,result)=>{
+        if (err) return res.status(500).json(err);
+        res.json({message:'Service updated', sid});
+    });
+}
 
-export { createService, getServices, getServiceById };
+const deleteService = (req,res)=>{
+    const {sid}= req.params;
+    db.query('DELETE FROM Service WHERE sid=?',[sid],(err,result)=>{
+        if (err) return res.status(500).json(err);
+        res.json({message:'Service deleted', sid});
+    });
+}
+
+export { createService, getServices, getServiceById, updateService, deleteService };
