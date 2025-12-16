@@ -18,7 +18,38 @@ const getUsers = (req, res) => {
     res.json(rows);
   });
 };
+
+const getUserById = (req,res)=>{
+  const {id}= req.params;
+  db.query('SELECT * FROM User WHERE uid=?',[id],(err,rows)=>{
+    if (err) return res.status(500).json(err);
+    res.json(rows[0]);
+  });
+}
+
+const updateUser = (req, res) => {
+  const { id } = req.params;
+  const { email, contact, firstName, lastName, role } = req.body;
+
+  db.query('UPDATE user SET email=?, contact=?, first_name=?, last_name=?, role=? WHERE id=?',
+    [email, contact, firstName, lastName, role, id],
+    (err, result) => {
+      if (err) return res.status(500).json(err);
+      if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
+      res.json({ message: 'User updated', id });
+    });
+};
+
+const deleteUser = (req, res) => {
+  const { id } = req.params;
+
+  db.query('DELETE FROM user WHERE id=?', [id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted', id });
+  });
+};
  
-export {createUser, getUsers};
+export {createUser, getUsers, updateUser,getUserById, deleteUser};
 
 
