@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import { logInfo } from '../utils/logger.js';
 
 const createBooking = (req,res)=>{
     const { uid,sid,date,time,notes,status="pending"} = req.body;
@@ -6,6 +7,7 @@ const createBooking = (req,res)=>{
     [uid,sid,date,time,notes,status],
     (err,result)=>{
          if (err) return res.status(500).json(err);
+         logInfo(`Booking created with id ${result.insertId}`, uid);
         res.json({ message: 'Booking created', bid: result.insertId });
     });
 }
@@ -33,6 +35,7 @@ const updateBooking = (req, res) => {
         (err, result) => {
             if (err) return res.status(500).json(err);
             if (result.affectedRows === 0) return res.status(404).json({ message: 'Booking not found' });
+            logInfo(`Booking updated with id ${bid}`, uid);
             res.json({ message: 'Booking updated', bid });
         });
 };
@@ -42,6 +45,7 @@ const deleteBooking = (req, res) => {
     db.query('DELETE FROM Bookings WHERE bid=?', [bid], (err, result) => {
         if (err) return res.status(500).json(err);
         if (result.affectedRows === 0) return res.status(404).json({ message: 'Booking not found' });
+        logInfo(`Booking deleted with id ${bid}`);
         res.json({ message: 'Booking deleted', bid });
     });
 };
