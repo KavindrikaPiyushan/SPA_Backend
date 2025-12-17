@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import { logInfo } from '../utils/logger.js';
 
 const createUser = (req,res)=>{
     const {email,contact,firstName,lastName,role}= req.body;
@@ -7,6 +8,7 @@ const createUser = (req,res)=>{
     [email,contact,firstName,lastName,role],
     (err,result)=>{
        if (err) return res.status(500).json(err);
+       logInfo(`User created with id ${result.insertId}`, result.insertId);
       res.json({ message: 'User created', id: result.insertId });
     });
 
@@ -36,6 +38,7 @@ const updateUser = (req, res) => {
     (err, result) => {
       if (err) return res.status(500).json(err);
       if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
+      logInfo(`User updated with id ${id}`, id);
       res.json({ message: 'User updated', id });
     });
 };
@@ -46,6 +49,7 @@ const deleteUser = (req, res) => {
   db.query('DELETE FROM user WHERE id=?', [id], (err, result) => {
     if (err) return res.status(500).json(err);
     if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
+    logInfo(`User deleted with id ${id}`);
     res.json({ message: 'User deleted', id });
   });
 };
