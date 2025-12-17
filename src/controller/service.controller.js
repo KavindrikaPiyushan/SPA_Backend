@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import { logInfo } from '../utils/logger.js';
 
 const createService = (req, res) => {
    const { name, duration, description, uid } = req.body;
@@ -8,6 +9,7 @@ const createService = (req, res) => {
     [name, duration, description, uid],
     (err, result) => {
       if (err) return res.status(500).json(err);
+        logInfo(`Service created with id ${result.insertId}`, uid);
       res.json({ message: 'Service created', sid: result.insertId });
     }
   );
@@ -34,6 +36,7 @@ const updateService = (req,res)=>{
     const {sid}= req.params;
     db.query('UPDATE Service SET ? WHERE sid=?',[req.body,sid],(err,result)=>{
         if (err) return res.status(500).json(err);
+        logInfo(`Service updated with id ${sid}`, req.body.uid);
         res.json({message:'Service updated', sid});
     });
 }
@@ -42,6 +45,7 @@ const deleteService = (req,res)=>{
     const {sid}= req.params;
     db.query('DELETE FROM Service WHERE sid=?',[sid],(err,result)=>{
         if (err) return res.status(500).json(err);
+        logInfo(`Service deleted with id ${sid}`);
         res.json({message:'Service deleted', sid});
     });
 }
