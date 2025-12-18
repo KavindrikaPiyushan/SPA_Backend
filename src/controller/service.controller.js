@@ -2,14 +2,14 @@ import db from '../config/db.js';
 import { logInfo } from '../utils/logger.js';
 
 const createService = (req, res) => {
-   const { name, duration, description, uid } = req.body;
+   const { name, duration, description, aid } = req.body;
 
    db.query(
     'INSERT INTO Service (name, duration, description, uid) VALUES (?,?,?,?)',
-    [name, duration, description, uid],
+    [name, duration, description, aid],
     (err, result) => {
       if (err) return res.status(500).json(err);
-        logInfo(`Service created with id ${result.insertId}`, uid);
+        logInfo(aid, 'admin', `Service created with id ${result.insertId}`);
       res.json({ message: 'Service created', sid: result.insertId });
     }
   );
@@ -33,20 +33,20 @@ const getServiceById = (req, res) => {
 }
 
 const updateService = (req,res)=>{
-    const {sid}= req.params;
-    db.query('UPDATE Service SET ? WHERE sid=?',[req.body,sid],(err,result)=>{
+    const {aid}= req.params;
+    db.query('UPDATE Service SET ? WHERE aid=?',[req.body,aid],(err,result)=>{
         if (err) return res.status(500).json(err);
-        logInfo(`Service updated with id ${sid}`, req.body.uid);
-        res.json({message:'Service updated', sid});
+       logInfo(aid, 'admin', `Service updated with id ${aid}`);
+        res.json({message:'Service updated', aid});
     });
 }
 
 const deleteService = (req,res)=>{
-    const {sid}= req.params;
-    db.query('DELETE FROM Service WHERE sid=?',[sid],(err,result)=>{
+    const {aid}= req.params;
+    db.query('DELETE FROM Service WHERE aid=?',[aid],(err,result)=>{
         if (err) return res.status(500).json(err);
-        logInfo(`Service deleted with id ${sid}`);
-        res.json({message:'Service deleted', sid});
+        logInfo(aid, 'admin', `Service deleted with id ${aid}`);
+        res.json({message:'Service deleted', aid});
     });
 }
 
