@@ -7,7 +7,7 @@ const createBooking = (req,res)=>{
     [uid,sid,date,time,notes,status],
     (err,result)=>{
          if (err) return res.status(500).json(err);
-         logInfo(`Booking created with id ${result.insertId}`, uid);
+            logInfo(uid, 'user', `Booking created with id ${result.insertId}`);
         res.json({ message: 'Booking created', bid: result.insertId });
     });
 }
@@ -29,23 +29,24 @@ const getBookingById = (req,res)=>{
 
 const updateBooking = (req, res) => {
     const { bid } = req.params;
-    const { uid, sid, date, time, notes, status } = req.body;
+    const { aid, sid, date, time, notes, status } = req.body;
     db.query('UPDATE Bookings SET uid=?, sid=?, date=?, time=?, notes=?, status=? WHERE bid=?',
-        [uid, sid, date, time, notes, status, bid],
+        [aid, sid, date, time, notes, status, bid],
         (err, result) => {
             if (err) return res.status(500).json(err);
             if (result.affectedRows === 0) return res.status(404).json({ message: 'Booking not found' });
-            logInfo(`Booking updated with id ${bid}`, uid);
+            logInfo(aid, 'admin', `Booking updated with id ${bid}`);
             res.json({ message: 'Booking updated', bid });
         });
 };
 
 const deleteBooking = (req, res) => {
     const { bid } = req.params;
+    const { aid } = req.body;
     db.query('DELETE FROM Bookings WHERE bid=?', [bid], (err, result) => {
         if (err) return res.status(500).json(err);
         if (result.affectedRows === 0) return res.status(404).json({ message: 'Booking not found' });
-        logInfo(`Booking deleted with id ${bid}`);
+        logInfo(aid, 'admin', `Booking deleted with id ${bid}`);
         res.json({ message: 'Booking deleted', bid });
     });
 };
