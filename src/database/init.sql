@@ -10,8 +10,7 @@ CREATE TABLE IF NOT EXISTS User (
   first_name VARCHAR(50) NOT NULL 
     CHECK (first_name != ''),
   last_name VARCHAR(50) NOT NULL 
-    CHECK (last_name != ''),
-  
+    CHECK (last_name != '')
 );
 
 CREATE TABLE IF NOT EXISTS Admin (
@@ -60,14 +59,19 @@ CREATE TABLE IF NOT EXISTS Bookings (
 
 CREATE TABLE IF NOT EXISTS Logs (
   lid INT PRIMARY KEY AUTO_INCREMENT,
-
   actor_id INT NOT NULL,
   actor_type ENUM('user', 'admin') NOT NULL,
-
   action VARCHAR(255) NOT NULL,
-  time DATETIME DEFAULT CURRENT_TIMESTAMP
+  time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_logs_actor_id (actor_id),
+  INDEX idx_logs_actor_type (actor_type),
+  INDEX idx_logs_time (time)
 );
 
-CREATE INDEX idx_logs_actor ON Logs (actor_type, actor_id);
-CREATE INDEX idx_logs_time ON Logs (time);
-
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  token VARCHAR(500),
+  expires_at DATETIME,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

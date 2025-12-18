@@ -1,5 +1,7 @@
 import db from '../config/db.js';
 import { logInfo } from '../utils/logger.js';
+import bcrypt from 'bcrypt';
+import { createAccessToken, createRefreshToken } from '../utils/tokenHelpers.js';
 
 export const createAdmin = async (req,res) =>{
     const {email,contact,firstName,lastName,password} = req.body;
@@ -23,3 +25,60 @@ export const createAdmin = async (req,res) =>{
     )
 
 }
+export const getUserByEmail = (email) => {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM Admin WHERE email=?', [email], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows[0]);
+        });
+    });
+}
+
+export const adminLogin = async (req,res) =>{
+    const {email,password}= req.body;
+    
+    const user = await getUserByEmail(email);
+    if(!user) 
+        return res.status(401).json({message: 'Invalid email or password'});
+
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    
+    if(!passwordMatch)
+        return res.status(401).json({message: 'Invalid email or password'});
+
+    const accessToken = createAccessToken(user)
+    const refreshToken = createRefreshToken(user)
+
+    await saveRefreshToken(user.aid, refreshToken)
+    
+    res.cookie('access_token', accessToken, {
+         httpOnly: true, 
+         secure: true,
+         sameSite: "None",
+         maxAge: 15 * 60 * 1000
+        });
+    res.cookie('refresh_token', refreshToken, { 
+        httpOnly: true, 
+        secure: true,
+        sameSite: "None",
+        maxAge: 7 * 24 * 60 * 60 * 1000 
+    });
+
+
+    logInfo(user.aid, 'admin', `Admin logged in with id ${user.aid}`);
+    res.json({message: 'Login successful'});
+
+}
+
+
+const saveRefreshToken = async (adminId, token) => {
+  try {
+    await db.promise().query(
+      'INSERT INTO AdminTokens (admin_id, token) VALUES (?, ?)',
+      [adminId, token]
+    );
+  } catch (err) {
+    // log or rethrow so caller can respond
+    throw err;
+  }
+};
