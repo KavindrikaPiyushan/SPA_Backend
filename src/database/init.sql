@@ -11,7 +11,21 @@ CREATE TABLE IF NOT EXISTS User (
     CHECK (first_name != ''),
   last_name VARCHAR(50) NOT NULL 
     CHECK (last_name != ''),
-  role ENUM('admin','customer') NOT NULL
+  
+);
+
+CREATE TABLE IF NOT EXISTS Admin (
+  aid INT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(100) UNIQUE NOT NULL 
+    CHECK (email != '' AND email REGEXP '^[^@]+@[^@]+\\.[^@]+$'),
+  contact VARCHAR(15) 
+    CHECK (contact IS NULL OR contact REGEXP '^[0-9]{10,15}$'),
+  first_name VARCHAR(50) NOT NULL 
+    CHECK (first_name != ''),
+  last_name VARCHAR(50) NOT NULL 
+    CHECK (last_name != ''),
+  password_hash VARCHAR(255) NOT NULL 
+    CHECK (password_hash != '')
 );
 
 CREATE TABLE IF NOT EXISTS Service (
@@ -46,11 +60,14 @@ CREATE TABLE IF NOT EXISTS Bookings (
 
 CREATE TABLE IF NOT EXISTS Logs (
   lid INT PRIMARY KEY AUTO_INCREMENT,
-  action VARCHAR(255) NOT NULL 
-    CHECK (action != ''),
-  time DATETIME DEFAULT CURRENT_TIMESTAMP,
-  uid INT,
-  FOREIGN KEY (uid) REFERENCES User(uid)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE
+
+  actor_id INT NOT NULL,
+  actor_type ENUM('user', 'admin') NOT NULL,
+
+  action VARCHAR(255) NOT NULL,
+  time DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_logs_actor ON Logs (actor_type, actor_id);
+CREATE INDEX idx_logs_time ON Logs (time);
+

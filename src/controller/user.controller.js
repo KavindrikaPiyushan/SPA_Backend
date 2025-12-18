@@ -8,7 +8,7 @@ const createUser = (req,res)=>{
     [email,contact,firstName,lastName,role],
     (err,result)=>{
        if (err) return res.status(500).json(err);
-       logInfo(`User created with id ${result.insertId}`, result.insertId);
+       logInfo(result.insertId, 'user', `User created with id ${result.insertId}`);
       res.json({ message: 'User created', id: result.insertId });
     });
 
@@ -38,7 +38,7 @@ const updateUser = (req, res) => {
     (err, result) => {
       if (err) return res.status(500).json(err);
       if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
-      logInfo(`User updated with id ${id}`, id);
+     logInfo(id, 'user', `User updated with id ${id}`);
       res.json({ message: 'User updated', id });
     });
 };
@@ -49,7 +49,7 @@ const deleteUser = (req, res) => {
   db.query('DELETE FROM user WHERE id=?', [id], (err, result) => {
     if (err) return res.status(500).json(err);
     if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
-    logInfo(`User deleted with id ${id}`);
+    logInfo(id, 'user', `User deleted with id ${id}`);
     res.json({ message: 'User deleted', id });
   });
 };
