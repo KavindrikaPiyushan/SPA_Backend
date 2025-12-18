@@ -2,10 +2,10 @@ import db from '../config/db.js';
 import { logInfo } from '../utils/logger.js';
 
 const createUser = (req,res)=>{
-    const {email,contact,firstName,lastName,role}= req.body;
+    const {email,contact,firstName,lastName}= req.body;
 
-    db.query('INSERT INTO user (email,contact,first_name,last_name,role) VALUES (?,?,?,?,?)',
-    [email,contact,firstName,lastName,role],
+    db.query('INSERT INTO user (email,contact,first_name,last_name) VALUES (?,?,?,?)',
+    [email,contact,firstName,lastName],
     (err,result)=>{
        if (err) return res.status(500).json(err);
        logInfo(result.insertId, 'user', `User created with id ${result.insertId}`);
@@ -31,10 +31,10 @@ const getUserById = (req,res)=>{
 
 const updateUser = (req, res) => {
   const { id } = req.params;
-  const { email, contact, firstName, lastName, role } = req.body;
+  const { email, contact, firstName, lastName } = req.body;
 
-  db.query('UPDATE user SET email=?, contact=?, first_name=?, last_name=?, role=? WHERE id=?',
-    [email, contact, firstName, lastName, role, id],
+  db.query('UPDATE user SET email=?, contact=?, first_name=?, last_name=? WHERE id=?',
+    [email, contact, firstName, lastName, id],
     (err, result) => {
       if (err) return res.status(500).json(err);
       if (result.affectedRows === 0) return res.status(404).json({ message: 'User not found' });
