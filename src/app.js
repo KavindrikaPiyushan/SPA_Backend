@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import userRoutes from './routes/user.routes.js';
 import serviceRoutes from './routes/service.routes.js';
 import bookingRoutes from './routes/booking.routes.js';
@@ -9,6 +10,7 @@ import adminRoutes from './routes/admin.routes.js';
 const app = express();
 
 app.use(cors());
+app.use(cookieParser());
 
 app.use(express.json());
 

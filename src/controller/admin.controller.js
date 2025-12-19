@@ -49,7 +49,7 @@ export const adminLogin = async (req,res) =>{
     const accessToken = createAccessToken(user)
     const refreshToken = createRefreshToken(user)
 
-    await saveRefreshToken(user.aid, refreshToken)
+    await saveRefreshToken(user.aid, refreshToken, 'admin')
     
     res.cookie('access_token', accessToken, {
          httpOnly: true, 
@@ -71,14 +71,100 @@ export const adminLogin = async (req,res) =>{
 }
 
 
-const saveRefreshToken = async (adminId, token) => {
+const saveRefreshToken = async (actorId, token, actorType = 'admin') => {
   try {
     await db.promise().query(
-      'INSERT INTO AdminTokens (admin_id, token) VALUES (?, ?)',
-      [adminId, token]
+      'INSERT INTO refresh_tokens (actor_id, actor_type, token) VALUES (?, ?, ?)',
+      [actorId, actorType, token]
     );
   } catch (err) {
     // log or rethrow so caller can respond
     throw err;
   }
 };
+
+export const tokenRefreshing = async (req,res)=>{
+    const refreshToken = req.cookies.refresh_token;
+    if(!refreshToken)
+        return res.status(401).json({message: 'Refresh token missing'});
+
+    const stored = await findRefreshToken(refreshToken);
+    if(!stored)
+        return res.status(403).json({message: 'Invalid refresh token'});
+
+    try{
+        const payload = jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET
+        );
+        const user = await getUserById(payload.userId);
+        const newAccessToken = createAccessToken(user);
+
+        res.cookie('access_token', newAccessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+            maxAge: 15 * 60 * 1000
+        });
+
+        res.json({message: 'Access token refreshed'});
+    }catch(err){
+        return res.status(403).json({message: 'Invalid refresh token'});
+    }
+
+}
+
+const findRefreshToken = async(token) => {
+    try{
+        const [rows] = db.query(
+            'SELECT * FROM refresh_tokens WHERE token=?',
+            [token]
+        );
+        return rows[0];
+    }catch(err){
+        throw err;
+    }
+}
+
+
+export const adminLogout = async (req,res)=>{
+    const refreshToken = req.cookies.refresh_token;
+    if(refreshToken){
+        await deleteRefreshToken(refreshToken);
+    }
+
+    res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None"
+  });
+
+  res.clearCookie("refresh_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None"
+  });
+
+  res.json({ message: "Logged out" });
+}
+
+
+const deleteRefreshToken = async(token) => {
+    try{
+        await db.promise().query(
+            'DELETE FROM refresh_tokens WHERE token=?',
+            [token]
+        );
+    }catch(err){
+        throw err;
+    }
+}
+
+const getUserById = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query('SELECT * FROM Admin WHERE aid=?', [id], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows[0]);
+        });
+    });
+}

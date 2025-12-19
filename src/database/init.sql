@@ -70,8 +70,10 @@ CREATE TABLE IF NOT EXISTS Logs (
 
 CREATE TABLE IF NOT EXISTS refresh_tokens (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT,
-  token VARCHAR(500),
+  actor_id INT NOT NULL,
+  actor_type ENUM('user', 'admin') NOT NULL,
+  token VARCHAR(500) NOT NULL,
   expires_at DATETIME,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_refresh_tokens_actor (actor_id, actor_type)
 );
