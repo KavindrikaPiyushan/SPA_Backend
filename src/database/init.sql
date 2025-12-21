@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS Service (
   duration INT NOT NULL 
     CHECK (duration > 0),
   description TEXT,
+  status ENUM('active', 'inactive') 
+    NOT NULL DEFAULT 'active',
   uid INT,
   FOREIGN KEY (uid) REFERENCES User(uid)
     ON DELETE SET NULL

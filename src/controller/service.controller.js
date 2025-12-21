@@ -16,9 +16,12 @@ const createService = (req, res) => {
 }
 
 
+// get active services
+
+
 const getServices = (req, res) => {
 
-    db.query('SELECT * FROM Service', (err, rows) => {
+    db.query('SELECT * FROM Service where status="active"', (err, rows) => {
         if (err) return res.status(500).json(err);
         res.json(rows);
     });
