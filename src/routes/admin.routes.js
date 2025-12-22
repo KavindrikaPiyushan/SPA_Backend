@@ -8,4 +8,7 @@ router.post('/create', authenticate, createAdmin);
 router.post('/login', adminLogin);
 router.post('/logout', authenticate, adminLogout);
 router.post('/refresh-token', tokenRefreshing);
+router.get('/verify', authenticate, (req, res) => {
+	res.json({ message: 'Token is valid' });
+});
 export default router;
