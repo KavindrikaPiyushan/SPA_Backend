@@ -2,11 +2,11 @@ import db from '../config/db.js';
 import { logInfo } from '../utils/logger.js';
 
 const createService = (req, res) => {
-   const { name, duration, description, aid } = req.body;
+   const { name, duration, description, aid, media } = req.body;
 
    db.query(
-    'INSERT INTO Service (name, duration, description, uid) VALUES (?,?,?,?)',
-    [name, duration, description, aid],
+    'INSERT INTO Service (name, duration, description, aid, media) VALUES (?,?,?,?,?)',
+    [name, duration, description, aid, JSON.stringify(media)],
     (err, result) => {
       if (err) return res.status(500).json(err);
         logInfo(aid, 'admin', `Service created with id ${result.insertId}`);

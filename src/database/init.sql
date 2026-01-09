@@ -34,10 +34,11 @@ CREATE TABLE IF NOT EXISTS Service (
   duration INT NOT NULL 
     CHECK (duration > 0),
   description TEXT,
+  media JSON,
   status ENUM('active', 'inactive') 
     NOT NULL DEFAULT 'active',
-  uid INT,
-  FOREIGN KEY (uid) REFERENCES User(uid)
+  aid INT,
+  FOREIGN KEY (aid) REFERENCES Admin(aid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
 );
