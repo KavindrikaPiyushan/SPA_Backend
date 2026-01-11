@@ -30,6 +30,17 @@ const getServices = (req, res) => {
     });
 }
 
+const getInactiveServices = (req, res) => {
+    db.query('SELECT * FROM Service where status="inactive"', (err, rows) => {
+        if (err) return res.status(500).json(err);
+        const services = rows.map(service => ({
+            ...service,
+            media: service.media ? JSON.parse(service.media) : []
+        }));
+        res.json(services);
+    });
+}
+
 const getServiceById = (req, res) => {
     const { sid } = req.params;
     db.query('SELECT * FROM Service WHERE sid=?', [sid], (err, rows) => {
